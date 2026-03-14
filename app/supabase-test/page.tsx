@@ -11,9 +11,14 @@ export default function SupabaseTestPage() {
       try {
         const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
-        setStatus(data.session ? "✅ Connected (session found)" : "✅ Connected (no session yet)");
-      } catch (e: any) {
-        setStatus("❌ Error: " + (e?.message ?? String(e)));
+        setStatus(
+          data.session
+            ? "✅ Connected (session found)"
+            : "✅ Connected (no session yet)"
+        );
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : String(e);
+        setStatus("❌ Error: " + message);
       }
     }
     run();
@@ -24,7 +29,7 @@ export default function SupabaseTestPage() {
       <h1 className="text-2xl font-bold">Supabase connection test</h1>
       <p className="mt-4">{status}</p>
       <p className="mt-2 text-sm text-neutral-600">
-        Als je hier ✅ ziet, zijn je keys + client goed gekoppeld.
+        Als je hier ✅ ziet, staan je keys + client goed.
       </p>
     </main>
   );
