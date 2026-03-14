@@ -26,10 +26,10 @@ export default function Home() {
 
           <nav className="flex items-center gap-2">
             <a
-              href="#"
+              href="account"
               className="rounded-full px-4 py-2 text-sm hover:bg-neutral-100"
             >
-              Inloggen
+              account
             </a>
             <a
               href="#"
