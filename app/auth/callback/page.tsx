@@ -10,32 +10,52 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     async function handleAuth() {
-      const url = new URL(window.location.href);
-      const code =
-  url.searchParams.get("code") ||
-  new URLSearchParams(window.location.hash.substring(1)).get("code");
+      try {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
 
-      if (!code) {
-        setMessage("Geen login-code gevonden.");
-        return;
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (error) {
+            setMessage("Login mislukt: " + error.message);
+            return;
+          }
+
+          router.replace("/account");
+          return;
+        }
+
+        const hash = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hash.get("access_token");
+        const refreshToken = hash.get("refresh_token");
+
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (error) {
+            setMessage("Login mislukt: " + error.message);
+            return;
+          }
+
+          router.replace("/account");
+          return;
+        }
+
+        const { data } = await supabase.auth.getSession();
+
+        if (data.session) {
+          router.replace("/account");
+          return;
+        }
+
+        setMessage("Geen geldige login-gegevens gevonden.");
+      } catch (error) {
+        setMessage("Er ging iets mis tijdens het inloggen.");
       }
-
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-      if (error) {
-        setMessage("Login mislukt: " + error.message);
-        return;
-      }
-
-      if (data.user) {
-        await supabase.from("profiles").upsert({
-          id: data.user.id,
-          email: data.user.email,
-          role: "guest",
-        });
-      }
-
-      router.push("/account");
     }
 
     handleAuth();
@@ -50,4 +70,3 @@ export default function AuthCallbackPage() {
     </main>
   );
 }
-
