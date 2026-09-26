@@ -53,7 +53,7 @@ export default function AuthCallbackPage() {
         }
 
         setMessage("Geen geldige login-gegevens gevonden.");
-      } catch (error) {
+      } catch {
         setMessage("Er ging iets mis tijdens het inloggen.");
       }
     }
