@@ -11,6 +11,16 @@ type Listing = {
   city: string;
   address: string | null;
   price_per_use: number;
+  available: boolean;
+};
+
+type AvailabilitySlot = {
+  id: string;
+  shower_id: string;
+  host_id: string;
+  slot_date: string;
+  start_time: string;
+  end_time: string;
 };
 
 export default function BookPage() {
@@ -18,37 +28,105 @@ export default function BookPage() {
   const id = params.id as string;
 
   const [listing, setListing] = useState<Listing | null>(null);
+  const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState("");
   const [loading, setLoading] = useState(true);
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [message, setMessage] = useState("");
   const [booking, setBooking] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    async function loadListing() {
-      const { data, error } = await supabase
+    async function loadPage() {
+      setLoading(true);
+      setMessage("");
+
+      const { data: listingData, error: listingError } = await supabase
         .from("listings")
-        .select("id, title, city, address, price_per_use")
+        .select("id, title, city, address, price_per_use, available")
         .eq("id", id)
         .single();
 
-      if (!error && data) {
-        setListing(data);
+      if (listingError || !listingData) {
+        console.error("Listing error:", listingError);
+        setMessage("Douchegegevens konden niet worden geladen.");
+        setLoading(false);
+        return;
+      }
+
+      if (!listingData.available) {
+        setMessage("Deze douche is tijdelijk niet beschikbaar.");
+        setListing(null);
+        setLoading(false);
+        return;
+      }
+
+      setListing(listingData);
+
+      const { data: slotData, error: slotError } = await supabase
+        .from("availability_slots")
+        .select("id, shower_id, host_id, slot_date, start_time, end_time")
+        .eq("shower_id", id)
+        .gte("slot_date", new Date().toISOString().split("T")[0])
+        .order("slot_date", { ascending: true })
+        .order("start_time", { ascending: true });
+
+      if (slotError) {
+        console.error("Availability error:", slotError);
+        setMessage("Beschikbaarheid kon niet worden geladen.");
+        setSlots([]);
+      } else {
+        setSlots(slotData ?? []);
       }
 
       setLoading(false);
     }
 
     if (id) {
-      loadListing();
+      loadPage();
     }
   }, [id]);
+
+  function formatDate(date: string) {
+    return new Intl.DateTimeFormat("nl-NL", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date(`${date}T12:00:00`));
+  }
+
+  function formatTime(time: string) {
+    return time.slice(0, 5);
+  }
 
   async function handleBooking(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!date || !time) {
-      setMessage("Kies eerst een datum en tijd.");
+    if (!listing) {
+      setMessage("Douchegegevens konden niet worden geladen.");
+      return;
+    }
+
+    if (!selectedSlotId) {
+      setMessage("Kies eerst een beschikbaar moment.");
+      return;
+    }
+
+    const selectedSlot = slots.find((slot) => slot.id === selectedSlotId);
+
+    if (!selectedSlot) {
+      setMessage("Het gekozen moment kon niet worden gevonden.");
+      return;
+    }
+
+    const { data: currentListing, error: availabilityError } =
+      await supabase
+        .from("listings")
+        .select("available")
+        .eq("id", id)
+        .single();
+
+    if (availabilityError || !currentListing?.available) {
+      setMessage("Deze douche is tijdelijk niet beschikbaar.");
       return;
     }
 
@@ -66,29 +144,48 @@ export default function BookPage() {
       return;
     }
 
-    const { error } = await supabase.from("bookings").insert({
-      listing_id: id,
-      guest_id: user.id,
-      booking_date: date,
-      booking_time: time,
-    });
+    try {
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: listing.title,
+          price: listing.price_per_use,
+          showerId: id,
+          guestId: user.id,
+          date: selectedSlot.slot_date,
+          time: selectedSlot.start_time,
+          availabilitySlotId: selectedSlot.id,
+          endTime: selectedSlot.end_time,
+        }),
+      });
 
-    if (error) {
+      const data = await response.json();
+
+      if (!response.ok || !data.url) {
+        throw new Error(
+          data.error || "Stripe Checkout kon niet worden gestart."
+        );
+      }
+
+      window.location.href = data.url;
+    } catch (error: unknown) {
       console.error(error);
-      setMessage("Boeking opslaan is mislukt: " + error.message);
+      setMessage(
+        "Betaling starten is mislukt: " +
+          (error instanceof Error ? error.message : "Onbekende fout")
+      );
       setBooking(false);
-      return;
     }
-
-    setMessage("Boeking succesvol geplaatst!");
-    setBooking(false);
   }
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-white p-6 py-16 text-neutral-900">
+      <main className="min-h-screen bg-[#FAFAF7] px-6 py-16 text-[#17211C]">
         <div className="mx-auto max-w-2xl">
-          <p>Laden...</p>
+          <p>Beschikbaarheid laden...</p>
         </div>
       </main>
     );
@@ -96,13 +193,13 @@ export default function BookPage() {
 
   if (!listing) {
     return (
-      <main className="min-h-screen bg-white p-6 py-16 text-neutral-900">
+      <main className="min-h-screen bg-[#FAFAF7] px-6 py-16 text-[#17211C]">
         <div className="mx-auto max-w-2xl">
           <p>Deze douche kon niet worden gevonden.</p>
 
           <Link
             href="/search"
-            className="mt-4 inline-block underline"
+            className="mt-4 inline-block font-semibold underline"
           >
             Terug naar zoeken
           </Link>
@@ -112,85 +209,96 @@ export default function BookPage() {
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 py-16 text-neutral-900">
+    <main className="min-h-screen bg-[#FAFAF7] px-6 py-16 text-[#17211C]">
       <div className="mx-auto max-w-2xl">
         <Link
           href={`/shower/${listing.id}`}
-          className="text-sm text-neutral-600 hover:text-black"
+          className="text-sm text-neutral-500 hover:text-black"
         >
           ← Terug naar douche
         </Link>
 
-        <div className="mt-8 rounded-2xl border p-8">
-          <h1 className="text-3xl font-bold">Boek je douche</h1>
+        <div className="mt-8 rounded-3xl border border-[#DDE5E0] bg-white p-8 shadow-sm">
+          <p className="text-sm font-bold tracking-[0.22em] text-[#158A6A]">
+            SHOWERSHARE
+          </p>
 
-          <div className="mt-6 border-b pb-6">
+          <h1 className="mt-2 text-3xl font-bold">Boek je douche</h1>
+
+          <div className="mt-8 border-b border-[#E5E9E6] pb-6">
             <h2 className="text-xl font-semibold">{listing.title}</h2>
 
-            <p className="mt-2 text-neutral-600">
+            <p className="mt-2 text-neutral-500">
               {listing.city}
               {listing.address ? ` · ${listing.address}` : ""}
             </p>
 
-            <p className="mt-2 font-semibold">
-              €{listing.price_per_use} per douche
+            <p className="mt-3 font-bold">
+              €{Number(listing.price_per_use).toFixed(2).replace(".", ",")} per douche
             </p>
           </div>
 
-          <form onSubmit={handleBooking} className="mt-6 space-y-5">
-            <div>
-              <label className="mb-2 block font-semibold">
-                Datum
-              </label>
+          <form onSubmit={handleBooking} className="mt-7">
+            <label
+              htmlFor="availability"
+              className="mb-3 block font-semibold"
+            >
+              Kies een beschikbaar moment
+            </label>
 
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-xl border px-4 py-3 outline-none focus:border-black"
+            {slots.length > 0 ? (
+              <select
+                id="availability"
+                value={selectedSlotId}
+                onChange={(e) => {
+                  setSelectedSlotId(e.target.value);
+                  setMessage("");
+                }}
+                className="w-full rounded-xl border border-[#DDE5E0] bg-white px-4 py-4 outline-none focus:border-[#158A6A]"
                 required
-              />
-            </div>
+              >
+                <option value="">Selecteer datum en tijd</option>
 
-            <div>
-              <label className="mb-2 block font-semibold">
-                Tijd
-              </label>
+                {slots.map((slot) => (
+                  <option key={slot.id} value={slot.id}>
+                    {formatDate(slot.slot_date)} · {formatTime(slot.start_time)} –{" "}
+                    {formatTime(slot.end_time)}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <div className="rounded-xl bg-[#F4F7F6] p-4 text-neutral-500">
+                Deze host heeft momenteel geen beschikbare momenten ingesteld.
+              </div>
+            )}
 
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full rounded-xl border px-4 py-3 outline-none focus:border-black"
-                required
-              />
-            </div>
-
-            <div className="rounded-xl bg-neutral-100 p-4">
+            <div className="mt-6 rounded-xl bg-[#F4F7F6] p-4">
               <div className="flex justify-between">
                 <span>Douche</span>
-                <span>€{listing.price_per_use}</span>
+                <span>
+                  €{Number(listing.price_per_use).toFixed(2).replace(".", ",")}
+                </span>
               </div>
 
               <div className="mt-2 flex justify-between font-bold">
                 <span>Totaal</span>
-                <span>€{listing.price_per_use}</span>
+                <span>
+                  €{Number(listing.price_per_use).toFixed(2).replace(".", ",")}
+                </span>
               </div>
             </div>
 
             <button
               type="submit"
-              disabled={booking}
-              className="w-full rounded-xl bg-black px-5 py-3 font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              disabled={booking || !selectedSlotId}
+              className="mt-5 w-full rounded-xl bg-[#158A6A] px-5 py-4 font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {booking ? "Boeking plaatsen..." : "Doorgaan met boeken"}
+              {booking ? "Betaling starten..." : "Doorgaan naar betalen"}
             </button>
           </form>
 
           {message && (
-            <p className="mt-5 rounded-xl bg-neutral-100 p-4">
-              {message}
-            </p>
+            <p className="mt-5 rounded-xl bg-[#F4F7F6] p-4">{message}</p>
           )}
         </div>
       </div>

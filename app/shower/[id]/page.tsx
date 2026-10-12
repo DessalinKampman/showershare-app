@@ -12,6 +12,7 @@ type Listing = {
   city: string;
   address: string | null;
   price_per_use: number;
+  shower_photos?: { url: string; sort_order: number }[];
 };
 
 export default function ShowerDetailPage() {
@@ -29,7 +30,7 @@ export default function ShowerDetailPage() {
 
       const { data, error } = await supabase
         .from("listings")
-        .select("id, title, description, city, address, price_per_use")
+        .select("id, title, description, city, address, price_per_use, shower_photos(url, sort_order)")
         .eq("id", id)
         .single();
 
@@ -90,6 +91,25 @@ export default function ShowerDetailPage() {
         </Link>
 
         <div className="mt-6 rounded-2xl border p-8">
+        {listing.shower_photos && listing.shower_photos.length > 0 && (
+          <div className="mb-8 grid gap-3 sm:grid-cols-3">
+            {[...listing.shower_photos]
+              .sort((a, b) => a.sort_order - b.sort_order)
+              .map((photo, index) => (
+                <img
+                  key={photo.url}
+                  src={photo.url}
+                  alt={`${listing.title} - foto ${index + 1}`}
+                  className={
+                    index === 0
+                      ? "h-72 w-full rounded-xl object-cover sm:col-span-3 sm:h-96"
+                      : "h-40 w-full rounded-xl object-cover"
+                  }
+                />
+              ))}
+          </div>
+        )}
+
           <h1 className="text-3xl font-bold tracking-tight">
             {listing.title}
           </h1>
@@ -113,17 +133,12 @@ export default function ShowerDetailPage() {
             </p>
           </div>
 
-          <button
-            type="button"
-            className="mt-8 rounded-xl bg-black px-6 py-3 font-semibold text-white hover:opacity-90"
-          >
-            <Link
+          <Link
   href={`/book/${listing.id}`}
   className="mt-8 inline-block rounded-xl bg-black px-6 py-3 font-semibold text-white hover:opacity-90"
 >
   Boek deze douche
-</Link>Boek deze douche
-          </button>
+</Link>
         </div>
       </div>
     </main>

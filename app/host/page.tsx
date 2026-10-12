@@ -11,6 +11,7 @@ export default function HostPage() {
   const [pricePerUse, setPricePerUse] = useState("5");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [photos, setPhotos] = useState<File[]>([]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,19 +28,60 @@ export default function HostPage() {
       return;
     }
 
-    const { error } = await supabase.from("listings").insert({
+    const { data: newListing, error } = await supabase
+    .from("listings")
+    .insert({
       user_id: user.id,
       title,
       description,
       city,
       address,
       price_per_use: Number(pricePerUse),
-    });
+    })
+    .select("id")
+    .single();
 
     if (error) {
       setMessage("Er ging iets mis: " + error.message);
     } else {
+      if (newListing && photos.length > 0) {
+        for (let i = 0; i < photos.length; i++) {
+          const photo = photos[i];
+          const extension = photo.name.split(".").pop() || "jpg";
+          const filePath = `${newListing.id}/${Date.now()}-${i}.${extension}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from("shower-photos")
+            .upload(filePath, photo);
+
+          if (uploadError) {
+            setMessage("Douche toegevoegd, maar foto uploaden mislukte: " + uploadError.message);
+            setLoading(false);
+            return;
+          }
+
+          const { data: publicUrlData } = supabase.storage
+            .from("shower-photos")
+            .getPublicUrl(filePath);
+
+          const { error: photoDbError } = await supabase
+            .from("shower_photos")
+            .insert({
+              shower_id: newListing.id,
+              url: publicUrlData.publicUrl,
+              sort_order: i,
+            });
+
+          if (photoDbError) {
+            setMessage("Foto geüpload, maar koppelen aan douche mislukte: " + photoDbError.message);
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
       setMessage("Je douche is toegevoegd.");
+      setPhotos([]);
       setTitle("");
       setDescription("");
       setCity("");
@@ -103,6 +145,30 @@ export default function HostPage() {
             step="0.5"
             required
           />
+
+      <div className="rounded-xl border border-dashed p-4">
+        <label className="mb-2 block font-semibold">
+          Foto's van je douche
+        </label>
+
+        <p className="mb-3 text-sm text-neutral-600">
+          Voeg foto's toe zodat gasten kunnen zien wat ze boeken.
+        </p>
+
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => setPhotos(Array.from(e.target.files || []))}
+          className="w-full"
+        />
+
+        {photos.length > 0 && (
+          <p className="mt-2 text-sm text-neutral-600">
+            {photos.length} foto{photos.length === 1 ? "" : "'s"} geselecteerd
+          </p>
+        )}
+      </div>
 
           <button
             type="submit"
