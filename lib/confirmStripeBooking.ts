@@ -29,14 +29,21 @@ export async function confirmStripeBooking(
 
   const { data: booking, error: lookupError } = await supabaseServer
     .from("bookings")
-    .select("id, shower_id, guest_id, subtotal_cents, status, stripe_payment_intent_id")
+    .select("id, shower_id, guest_id, subtotal_cents, status, stripe_checkout_session_id, stripe_payment_intent_id")
     .eq("id", bookingId)
     .single();
 
   if (lookupError || !booking) {
     throw new Error("Bijbehorende reservering niet gevonden.");
   }
-
+if (
+  !booking.stripe_checkout_session_id ||
+  booking.stripe_checkout_session_id !== session.id
+) {
+  throw new Error(
+    "Stripe Checkout-sessie komt niet overeen met de reservering."
+  );
+}
   if (
     booking.shower_id !== session.metadata?.showerId ||
     booking.guest_id !== session.metadata?.guestId ||
