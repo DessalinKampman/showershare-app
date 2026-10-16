@@ -29,6 +29,72 @@ export default function HostDashboardPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [status, setStatus] = useState("Laden...");
+const [connectLoading, setConnectLoading] = useState(false);
+const [connectError, setConnectError] = useState("");
+
+  async function startStripeOnboarding() {
+    if (connectLoading) return;
+
+    setConnectLoading(true);
+    setConnectError("");
+
+    try {
+      const { data, error } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+
+      if (error || !token) {
+        throw new Error("Log opnieuw in om je uitbetalingen in te stellen.");
+      }
+
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const createResponse = await fetch("/api/connect/create-account", {
+        method: "POST",
+        headers,
+      });
+
+      const createData = await createResponse.json();
+
+      if (!createResponse.ok) {
+        throw new Error(createData.error || "Stripe-account aanmaken mislukt.");
+      }
+
+      const onboardingResponse = await fetch("/api/connect/onboarding", {
+        method: "POST",
+        headers,
+      });
+
+      const onboardingData = await onboardingResponse.json();
+
+      if (!onboardingResponse.ok) {
+        throw new Error(onboardingData.error || "Stripe-onboarding starten mislukt.");
+      }
+
+      if (onboardingData.onboardingComplete) {
+        setConnectError("Je Stripe-account is al ingesteld.");
+        return;
+      }
+
+      const url = onboardingData.url;
+
+      if (
+        typeof url !== "string" ||
+        !url.startsWith("https://connect.stripe.com/")
+      ) {
+        throw new Error("Ongeldige Stripe-onboardinglink.");
+      }
+
+      window.location.assign(url);
+    } catch (error) {
+      setConnectError(
+        error instanceof Error ? error.message : "Er is iets misgegaan."
+      );
+    } finally {
+      setConnectLoading(false);
+    }
+  }
 
   useEffect(() => {
     async function loadDashboard() {
@@ -319,6 +385,26 @@ export default function HostDashboardPage() {
                     </div>
                   ))}
                 </div>
+              )}
+            </section>
+
+            <section className="mt-12 rounded-3xl border border-[#D0E6D2] bg-white p-7">
+              <h2 className="text-2xl font-bold">Uitbetalingen</h2>
+              <p className="mt-2 text-sm text-[#68756F]">
+                Ontvang 75% van iedere boeking. ShowerShare ontvangt 25% commissie.
+              </p>
+              <button
+                type="button"
+                onClick={startStripeOnboarding}
+                disabled={connectLoading}
+                className="mt-5 rounded-xl bg-[#168568] px-6 py-3 font-semibold text-white disabled:opacity-50"
+              >
+                {connectLoading ? "Even geduld..." : "Uitbetalingen instellen"}
+              </button>
+              {connectError && (
+                <p className="mt-3 text-sm text-red-700" role="alert">
+                  {connectError}
+                </p>
               )}
             </section>
 
