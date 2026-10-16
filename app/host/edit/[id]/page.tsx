@@ -476,9 +476,9 @@ export default function EditShowerPage() {
 
 
             <div className="rounded-2xl border border-[#DDE6E2] p-5">
-              <h2 className="text-xl font-bold">Foto's van je douche</h2>
+              <h2 className="text-xl font-bold">Foto&apos;s van je douche</h2>
               <p className="mt-2 text-sm text-neutral-600">
-                Beheer hier de foto's die gasten kunnen bekijken.
+                Beheer hier de foto&apos;s die gasten kunnen bekijken.
               </p>
 
               {photoError && (
@@ -508,7 +508,7 @@ export default function EditShowerPage() {
 
               {photos.length === 0 ? (
                 <p className="mt-4 text-sm text-neutral-500">
-                  Nog geen foto's toegevoegd.
+                  Nog geen foto&apos;s toegevoegd.
                 </p>
               ) : (
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">

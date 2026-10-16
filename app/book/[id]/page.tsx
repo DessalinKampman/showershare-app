@@ -61,20 +61,26 @@ export default function BookPage() {
 
       setListing(listingData);
 
-      const { data: slotData, error: slotError } = await supabase
-        .from("availability_slots")
-        .select("id, shower_id, host_id, slot_date, start_time, end_time")
-        .eq("shower_id", id)
-        .gte("slot_date", new Date().toISOString().split("T")[0])
-        .order("slot_date", { ascending: true })
-        .order("start_time", { ascending: true });
+      try {
+        const response = await fetch(
+          `/api/available-slots?showerId=${encodeURIComponent(id)}`,
+          { cache: "no-store" }
+        );
 
-      if (slotError) {
-        console.error("Availability error:", slotError);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Beschikbaarheid ophalen mislukt."
+          );
+        }
+
+        setSlots(data.slots ?? []);
+        setSelectedSlotId("");
+      } catch (error) {
+        console.error("Beschikbaarheid ophalen mislukt:", error);
         setMessage("Beschikbaarheid kon niet worden geladen.");
         setSlots([]);
-      } else {
-        setSlots(slotData ?? []);
       }
 
       setLoading(false);
@@ -145,10 +151,20 @@ export default function BookPage() {
     }
 
     try {
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+      const accessToken = sessionData.session?.access_token;
+
+      if (sessionError || !accessToken) {
+        throw new Error("Je sessie is verlopen. Log opnieuw in.");
+      }
+
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           title: listing.title,

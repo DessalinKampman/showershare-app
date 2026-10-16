@@ -148,11 +148,11 @@ export default function HostPage() {
 
       <div className="rounded-xl border border-dashed p-4">
         <label className="mb-2 block font-semibold">
-          Foto's van je douche
+          Foto&apos;s van je douche
         </label>
 
         <p className="mb-3 text-sm text-neutral-600">
-          Voeg foto's toe zodat gasten kunnen zien wat ze boeken.
+          Voeg foto&apos;s toe zodat gasten kunnen zien wat ze boeken.
         </p>
 
         <input
