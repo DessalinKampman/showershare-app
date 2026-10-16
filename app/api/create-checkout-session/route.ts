@@ -143,7 +143,7 @@ export async function POST(request: Request) {
     }
 
     const subtotalCents = Math.round(verifiedPrice * 100);
-    const platformFeeCents = Math.round(subtotalCents * 0.15);
+    const platformFeeCents = Math.round(subtotalCents * 0.25);
     const hostPayoutCents = subtotalCents - platformFeeCents;
 
     // 1. Maak EERST de pending booking aan en haal de booking-ID terug.
