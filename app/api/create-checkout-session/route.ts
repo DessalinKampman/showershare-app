@@ -1,3 +1,4 @@
+import { calculatePlatformFee } from "@/lib/platformConfig";
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
@@ -143,7 +144,7 @@ export async function POST(request: Request) {
     }
 
     const subtotalCents = Math.round(verifiedPrice * 100);
-    const platformFeeCents = Math.round(subtotalCents * 0.25);
+    const platformFeeCents = calculatePlatformFee(subtotalCents);
     const hostPayoutCents = subtotalCents - platformFeeCents;
 
     // 1. Maak EERST de pending booking aan en haal de booking-ID terug.
