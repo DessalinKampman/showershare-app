@@ -72,8 +72,10 @@ export default function AccountPage() {
 
   function statusLabel(status: string) {
     if (status === "confirmed") return "Bevestigd";
+    if (status === "cancelled") return "Geannuleerd";
     if (status === "rejected") return "Geweigerd";
-    return "In afwachting";
+    if (status === "pending") return "In afwachting";
+    return "Onbekende status";
   }
 
   if (loading) {
