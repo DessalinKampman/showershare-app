@@ -25,3 +25,25 @@ body {
     text-wrap: balance;
   }
 }
+
+/* ShowerShare: rustige hero-animatie */
+@keyframes showerHeroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shower-hero-reveal {
+  animation: showerHeroReveal 900ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shower-hero-reveal {
+    animation: none;
+  }
+}

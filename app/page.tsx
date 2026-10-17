@@ -108,7 +108,7 @@ export default function Home() {
           </div>
 
           {/* Visual composition */}
-          <div className="relative mx-auto w-full max-w-xl">
+          <div className="shower-hero-reveal relative mx-auto w-full max-w-xl">
             <div className="absolute -inset-5 rounded-[48px] bg-[#CDEBE1]/50 blur-2xl" />
 
             <div className="relative overflow-hidden rounded-[36px] border border-white/70 bg-[#E2F0E9] p-5 shadow-2xl shadow-[#1D5748]/15 sm:p-8">
