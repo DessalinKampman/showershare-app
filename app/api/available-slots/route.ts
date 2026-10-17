@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createHash } from "crypto";
 import { supabaseServer } from "@/lib/supabaseServer";
 
 export const dynamic = "force-dynamic";
@@ -44,6 +45,11 @@ export async function GET(request: Request) {
     if (bookingError) throw bookingError;
 
     console.log("ShowerShare beschikbaarheid diagnose:", {
+      zelfdeServiceSleutelAlsLokaal:
+        createHash("sha256")
+          .update(process.env.SUPABASE_SERVICE_ROLE_KEY ?? "")
+          .digest("hex")
+          .startsWith("3e67f20f5ef5"),
       aantalTijdsloten: slots?.length ?? 0,
       aantalActieveBoekingen: bookings?.length ?? 0,
       datumfilter: today,
