@@ -164,9 +164,9 @@ export default function SearchPage() {
               >
                 {/* Tijdelijke foto-placeholder */}
                 <div className="relative flex h-52 items-center justify-center bg-gradient-to-br from-[#DDF1EB] to-[#F3FAF7]">
-                    {listing.shower_photos?.[0]?.url && (
+                    {(
                       <img
-                        src={listing.shower_photos[0].url}
+                        src={listing.shower_photos?.[0]?.url || "/images/shower-hero.jpg"}
                         alt={`Foto van ${listing.title}`}
                         className="absolute inset-0 h-full w-full object-cover"
                       />
