@@ -43,46 +43,6 @@ export async function GET(request: Request) {
 
     if (bookingError) throw bookingError;
 
-    // TIJDELIJKE DIAGNOSE: specifieke boeking controleren.
-    const { data: controleBoeking, error: controleFout } =
-      await supabaseServer
-        .from("bookings")
-        .select("id, booking_date, booking_time, status")
-        .eq("id", "9234dbe0-87b6-4740-a6e4-870de1a51b04")
-        .maybeSingle();
-
-    console.log("ShowerShare gerichte boekingscontrole:", {
-      gevonden: Boolean(controleBoeking),
-      datum: controleBoeking?.booking_date ?? null,
-      tijd: controleBoeking?.booking_time ?? null,
-      status: controleBoeking?.status ?? null,
-      fout: controleFout?.message ?? null,
-    });
-
-
-    console.log("ShowerShare beschikbaarheid diagnose:", {
-      aantalTijdsloten: slots?.length ?? 0,
-      aantalActieveBoekingen: bookings?.length ?? 0,
-      opgehaaldeBoekingen: (bookings ?? []).map((b) => ({
-        datum: b.booking_date,
-        tijd: b.booking_time,
-        duur: b.duration_minutes,
-      })),
-      datumfilter: today,
-      boekingenOp26Oktober: (bookings ?? [])
-        .filter((b) => String(b.booking_date).startsWith("2026-10-26"))
-        .map((b) => ({
-          datum: b.booking_date,
-          tijd: b.booking_time,
-          duur: b.duration_minutes,
-        })),
-      boekingOpTestmoment: (bookings ?? []).some(
-        (b) =>
-          b.booking_date === "2026-10-26" &&
-          b.booking_time === "15:17:00"
-      ),
-    });
-
     const toMinutes = (time: string) => {
       const [hours, minutes] = time.split(":").map(Number);
       return hours * 60 + minutes;
