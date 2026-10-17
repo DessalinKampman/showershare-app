@@ -189,45 +189,6 @@ const [connectError, setConnectError] = useState("");
     );
   }
 
-  async function updateBookingStatus(
-    bookingId: string,
-    newStatus: string
-  ) {
-    try {
-      const response = await fetch("/api/update-booking-status", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          bookingId,
-          newStatus,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Status aanpassen is mislukt.");
-      }
-
-      setBookings((currentBookings) =>
-        currentBookings.map((booking) =>
-          booking.id === bookingId
-            ? { ...booking, status: newStatus }
-            : booking
-        )
-      );
-    } catch (error: unknown) {
-      console.error(error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Status aanpassen is mislukt."
-      );
-    }
-  }
-
   const totalRevenue = bookings
     .filter((booking) => booking.status === "confirmed")
     .reduce(
@@ -483,33 +444,7 @@ const [connectError, setConnectError] = useState("");
                         </div>
                       </div>
 
-                      {booking.status === "pending" && (
-                        <div className="mt-5 flex gap-3">
-                          <button
-                            onClick={() =>
-                              updateBookingStatus(
-                                booking.id,
-                                "confirmed"
-                              )
-                            }
-                            className="rounded-xl bg-[#168568] px-5 py-3 text-sm font-semibold text-white hover:opacity-90"
-                          >
-                            Accepteren
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              updateBookingStatus(
-                                booking.id,
-                                "rejected"
-                              )
-                            }
-                            className="rounded-xl border border-[#D6DEDA] bg-white px-5 py-3 text-sm font-semibold text-[#17221D] hover:bg-[#F8FAF9]"
-                          >
-                            Weigeren
-                          </button>
-                        </div>
-                      )}
+                      
                     </div>
                   ))}
                 </div>
