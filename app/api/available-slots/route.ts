@@ -43,6 +43,16 @@ export async function GET(request: Request) {
 
     if (bookingError) throw bookingError;
 
+    console.log("ShowerShare beschikbaarheid diagnose:", {
+      aantalTijdsloten: slots?.length ?? 0,
+      aantalActieveBoekingen: bookings?.length ?? 0,
+      boekingOpTestmoment: (bookings ?? []).some(
+        (b) =>
+          b.booking_date === "2026-10-26" &&
+          b.booking_time === "15:17:00"
+      ),
+    });
+
     const toMinutes = (time: string) => {
       const [hours, minutes] = time.split(":").map(Number);
       return hours * 60 + minutes;
