@@ -87,107 +87,171 @@ export default function AccountPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAF9] text-[#17221D]">
-      <div className="mx-auto max-w-5xl px-6 py-12">
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <p className="mb-2 font-semibold uppercase tracking-[0.2em] text-[#168568]">
-              ShowerShare
-            </p>
-            <h1 className="text-4xl font-bold">Mijn account</h1>
-            <p className="mt-2 text-[#68756F]">{email}</p>
-          </div>
-
-          <div className="flex gap-3">
-            <Link
-              href="/search"
-              className="rounded-xl bg-[#168568] px-5 py-3 font-semibold text-white"
-            >
-              Zoek een douche
-            </Link>
-
-            <Link
-              href="/host/dashboard"
-              className="rounded-xl border border-[#D6DEDA] bg-white px-5 py-3 font-semibold"
-            >
-              Host-dashboard
-            </Link>
-          </div>
+    <main className="min-h-screen bg-[#F8FAF9] text-[#16211D]">
+      <header className="border-b border-[#E4EAE7] bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
+          <Link href="/" className="text-xl font-bold tracking-tight">
+            Shower<span className="text-[#168B80]">Share</span>
+          </Link>
+          <Link
+            href="/search"
+            className="rounded-full border border-[#E4EAE7] px-5 py-2 text-sm font-semibold"
+          >
+            Zoek een douche
+          </Link>
         </div>
+      </header>
 
-        <section>
-          <h2 className="text-2xl font-bold">Mijn boekingen</h2>
-          <p className="mt-1 text-[#68756F]">
-            Bekijk hier de status van je reserveringen.
-          </p>
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#168B80]">
+          Jouw persoonlijke omgeving
+        </p>
 
-          <div className="mt-6 space-y-4">
-            {bookings.length === 0 ? (
-              <div className="rounded-2xl border border-[#D6DEDA] bg-white p-6">
-                Je hebt nog geen boekingen.
+        <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">
+          Mijn account
+        </h1>
+
+        <p className="mt-4 text-[#68756F]">
+          Bekijk je reserveringen en beheer jouw ShowerShare-activiteiten.
+        </p>
+
+        <section className="mt-10 flex flex-wrap items-center justify-between gap-6 rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm sm:p-9">
+          <div className="flex min-w-0 items-center gap-5">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#E5F4EE] text-2xl font-bold text-[#176D68]">
+              {(email || "S").charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#168B80]">
+                Ingelogd account
+              </p>
+              <h2 className="mt-1 break-all text-lg font-bold">
+                {email || "Niet ingelogd"}
+              </h2>
+            </div>
+          </div>
+
+          <Link
+            href="/host/dashboard"
+            className="rounded-2xl bg-[#176D68] px-6 py-3 font-semibold text-white hover:bg-[#115651]"
+          >
+            Host-dashboard →
+          </Link>
+        </section>
+
+        <section className="mt-12">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#168B80]">
+                Reserveringsoverzicht
+              </p>
+              <h2 className="mt-2 text-3xl font-bold">Mijn boekingen</h2>
+              <p className="mt-2 text-[#68756F]">
+                Bekijk de status en gegevens van je reserveringen.
+              </p>
+            </div>
+
+            <span className="rounded-full bg-[#E5F4EE] px-4 py-2 text-sm font-bold text-[#176D68]">
+              {bookings.length} {bookings.length === 1 ? "boeking" : "boekingen"}
+            </span>
+          </div>
+
+          {bookings.length === 0 ? (
+            <div className="mt-7 rounded-[28px] border border-[#E1EAE5] bg-white px-6 py-14 text-center shadow-sm">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#E5F4EE] text-3xl">
+                🚿
               </div>
-            ) : (
-              bookings.map((booking) => (
-                <div
+              <h3 className="mt-5 text-2xl font-bold">Nog geen boekingen</h3>
+              <p className="mt-3 text-[#68756F]">
+                Zodra je een douche hebt geboekt, vind je hier je reservering.
+              </p>
+              <Link
+                href="/search"
+                className="mt-7 inline-block rounded-2xl bg-[#176D68] px-6 py-3 font-bold text-white"
+              >
+                Ontdek beschikbare douches →
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-7 grid gap-5">
+              {bookings.map((booking) => (
+                <article
                   key={booking.id}
-                  className="rounded-2xl border border-[#D6DEDA] bg-white p-6"
+                  className="rounded-[28px] border border-[#E1EAE5] bg-white p-6 shadow-sm sm:p-8"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex flex-wrap items-start justify-between gap-5">
                     <div>
-                      <h3 className="text-xl font-bold">
+                      <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#168B80]">
+                        Douche reservering
+                      </p>
+                      <h3 className="mt-2 text-2xl font-bold">
                         {booking.listing?.title || "Douche"}
                       </h3>
-
-                      <p className="mt-1 text-[#68756F]">
-                        {booking.listing?.city}
+                      <p className="mt-2 text-sm text-[#68756F]">
+                        {booking.listing?.city || "Locatie onbekend"}
                         {booking.listing?.address
                           ? ` · ${booking.listing.address}`
                           : ""}
                       </p>
-
-                      <p className="mt-3 text-[#68756F]">
-                        {booking.booking_date} · {booking.booking_time}
-                      </p>
                     </div>
 
-                    <span className="rounded-full bg-[#E4F5EF] px-4 py-2 text-sm font-semibold text-[#168568]">
+                    <span
+                      className={`rounded-full px-4 py-2 text-sm font-bold ${
+                        booking.status === "confirmed"
+                          ? "bg-[#E5F4EE] text-[#176D68]"
+                          : booking.status === "cancelled" ||
+                            booking.status === "rejected"
+                          ? "bg-[#FCECEC] text-[#A43B3B]"
+                          : "bg-[#FFF5E5] text-[#9B651C]"
+                      }`}
+                    >
                       {statusLabel(booking.status)}
                     </span>
                   </div>
 
-                  <div className="mt-4 rounded-xl bg-[#F8FAF9] p-4 text-sm">
-                {booking.status === "confirmed" && (
-                  <p className="font-medium text-[#168568]">
-                    Je reservering is bevestigd. Je kunt op het gekozen moment terecht.
-                  </p>
-                )}
-
-                {booking.status === "rejected" && (
-                  <p className="font-medium text-[#68756F]">
-                    Deze reservering is geweigerd. Je betaling wordt terugbetaald.
-                  </p>
-                )}
-
-                {booking.status === "pending" && (
-                  <p className="font-medium text-[#68756F]">
-                    Je betaling is ontvangen. De host moet je reservering nog accepteren.
-                  </p>
-                )}
-              </div>
-
-              <div className="mt-5 border-t border-[#E8EEEB] pt-4 flex justify-between">
-                    <span className="font-semibold">Totaal</span>
-                    <span className="font-bold">
-                      €
-                      {(booking.subtotal_cents / 100)
-                        .toFixed(2)
-                        .replace(".", ",")}
-                    </span>
+                  <div className="mt-6 grid gap-4 rounded-2xl bg-[#F3F8F5] p-5 sm:grid-cols-2">
+                    <div>
+                      <p className="text-xs font-semibold text-[#68756F]">
+                        Datum en tijd
+                      </p>
+                      <p className="mt-2 font-bold">
+                        {booking.booking_date} · {booking.booking_time?.slice(0, 5)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-[#68756F]">
+                        Reserveringsbedrag
+                      </p>
+                      <p className="mt-2 text-xl font-bold">
+                        €{(booking.subtotal_cents / 100).toLocaleString("nl-NL", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+
+                  {booking.status === "confirmed" && (
+                    <p className="mt-5 text-sm text-[#53615B]">
+                      ✓ Je reservering is bevestigd.
+                    </p>
+                  )}
+
+                  {booking.status === "pending" && (
+                    <p className="mt-5 text-sm text-[#53615B]">
+                      Je reservering wordt nog verwerkt.
+                    </p>
+                  )}
+
+                  {(booking.status === "cancelled" ||
+                    booking.status === "rejected") && (
+                    <p className="mt-5 text-sm text-[#53615B]">
+                      Deze reservering is niet meer actief.
+                    </p>
+                  )}
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </div>
     </main>
