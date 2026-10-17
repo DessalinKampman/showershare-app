@@ -116,16 +116,12 @@ export default function Home() {
                 <div className="absolute -right-14 -top-20 h-64 w-64 rounded-full border-[30px] border-white/40" />
                 <div className="absolute left-[-60px] top-28 h-56 w-56 rounded-full border-[25px] border-white/30" />
 
-                <div className="absolute left-1/2 top-12 h-24 w-40 -translate-x-1/2 rounded-t-[75px] border-[12px] border-b-0 border-[#548F84]/80" />
-                <div className="absolute left-1/2 top-[126px] h-4 w-32 -translate-x-1/2 rounded-full bg-[#548F84]" />
-
-                <div className="absolute left-[40%] top-[150px] h-28 w-1 -rotate-12 rounded-full bg-white/80" />
-                <div className="absolute left-[49%] top-[158px] h-36 w-1 rounded-full bg-white/80" />
-                <div className="absolute left-[58%] top-[150px] h-28 w-1 rotate-12 rounded-full bg-white/80" />
-                <div className="absolute left-[34%] top-[177px] h-20 w-1 -rotate-[25deg] rounded-full bg-white/60" />
-                <div className="absolute left-[64%] top-[177px] h-20 w-1 rotate-[25deg] rounded-full bg-white/60" />
-
-                <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-[#7CAFA4]/40 to-transparent" />
+                <img
+                  src="/images/shower-hero.jpg"
+                  alt="Lichte badkamer met een moderne douche"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#123C35]/45 via-transparent to-transparent" />
 
                 <div className="absolute bottom-6 left-5 right-5 rounded-3xl border border-white/70 bg-white/90 p-5 shadow-xl backdrop-blur-lg sm:left-8 sm:right-8">
                   <div className="flex items-start justify-between gap-3">
