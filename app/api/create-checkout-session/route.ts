@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const { data: verifiedListing, error: listingError } =
       await supabaseServer
         .from("listings")
-        .select("id, title, price_per_use, available")
+        .select("id, title, price_per_use, available, user_id")
         .eq("id", showerId)
         .single();
 
@@ -131,6 +131,54 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Dit tijdslot heeft een ongeldige eindtijd." },
       { status: 400 }
+    );
+  }
+
+  // Zoek het Stripe Connect-account van de eigenaar.
+  const { data: hostPayoutAccount, error: hostPayoutError } =
+    await supabaseServer
+      .from("host_payout_accounts")
+      .select("stripe_account_id")
+      .eq("user_id", verifiedListing.user_id)
+      .maybeSingle();
+
+  if (hostPayoutError) {
+    console.error("Host Stripe-koppeling ophalen mislukt:", hostPayoutError);
+    return NextResponse.json(
+      { error: "Uitbetalingsgegevens konden niet worden gecontroleerd." },
+      { status: 500 }
+    );
+  }
+
+  if (!hostPayoutAccount?.stripe_account_id) {
+    return NextResponse.json(
+      { error: "Deze host moet eerst uitbetalingen instellen." },
+      { status: 409 }
+    );
+  }
+
+  // Controleer de actuele Stripe Connect-status.
+  let hostStripeAccount;
+
+  try {
+    hostStripeAccount = await stripe.accounts.retrieve(
+      hostPayoutAccount.stripe_account_id
+    );
+  } catch (error) {
+    console.error("Stripe Connect-account controleren mislukt:", error);
+    return NextResponse.json(
+      { error: "De betaalgegevens van deze host konden niet worden gecontroleerd." },
+      { status: 503 }
+    );
+  }
+
+  if (
+    !hostStripeAccount.charges_enabled ||
+    hostStripeAccount.capabilities?.transfers !== "active"
+  ) {
+    return NextResponse.json(
+      { error: "Deze host moet eerst de betaalinstellingen bij Stripe afronden." },
+      { status: 409 }
     );
   }
 
@@ -224,6 +272,10 @@ export async function POST(request: Request) {
       },
 
       payment_intent_data: {
+        application_fee_amount: platformFeeCents,
+        transfer_data: {
+          destination: hostPayoutAccount.stripe_account_id,
+        },
         metadata: {
           bookingId,
           showerId,
