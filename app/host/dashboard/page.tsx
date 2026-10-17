@@ -262,7 +262,7 @@ const [connectError, setConnectError] = useState("");
               </div>
 
               <div className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm">
-                <p className="text-sm text-[#68756F]">Totale inkomsten</p>
+                <p className="text-sm text-[#68756F]">Opbrengst uit bevestigde boekingen</p>
                 <p className="mt-2 text-3xl font-bold">
                   €{(totalRevenue / 100).toFixed(2).replace(".", ",")}
                 </p>
