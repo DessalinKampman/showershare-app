@@ -53,6 +53,7 @@ export default function HostPage() {
       city,
       address,
       price_per_use: Number(pricePerUse),
+      available: false,
     })
     .select("id")
     .single();
@@ -94,6 +95,21 @@ export default function HostPage() {
             return;
           }
         }
+      }
+
+      const { error: activationError } = await supabase
+        .from("listings")
+        .update({ available: true })
+        .eq("id", newListing.id)
+        .eq("user_id", user.id);
+
+      if (activationError) {
+        setMessage(
+          "Je douche en foto's zijn opgeslagen, maar activeren is mislukt: " +
+            activationError.message
+        );
+        setLoading(false);
+        return;
       }
 
       setMessage("Je douche is toegevoegd.");
