@@ -201,7 +201,7 @@ const [connectError, setConnectError] = useState("");
   ).length;
 
   return (
-    <main className="min-h-screen bg-[#F8FAF9] text-[#17221D]">
+    <main className="min-h-screen bg-[#F8FAF9] text-[#16211D]">
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -221,7 +221,7 @@ const [connectError, setConnectError] = useState("");
           <div className="flex gap-3">
             <Link
               href="/host"
-              className="rounded-full bg-[#168568] px-5 py-3 text-sm font-semibold text-white"
+              className="rounded-2xl bg-[#176D68] px-5 py-3 text-sm font-semibold text-white"
             >
               + Douche toevoegen
             </Link>
@@ -249,25 +249,25 @@ const [connectError, setConnectError] = useState("");
         ) : (
           <>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <div className="rounded-3xl border border-[#DDE6E2] bg-white p-6">
+              <div className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm">
                 <p className="text-sm text-[#68756F]">Mijn douches</p>
                 <p className="mt-2 text-3xl font-bold">{listings.length}</p>
               </div>
 
-              <div className="rounded-3xl border border-[#DDE6E2] bg-white p-6">
+              <div className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm">
                 <p className="text-sm text-[#68756F]">
                   Reserveringen in afwachting
                 </p>
                 <p className="mt-2 text-3xl font-bold">{pendingBookings}</p>
               </div>
 
-              <div className="rounded-3xl border border-[#DDE6E2] bg-white p-6">
+              <div className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm">
                 <p className="text-sm text-[#68756F]">Totale inkomsten</p>
                 <p className="mt-2 text-3xl font-bold">
                   €{(totalRevenue / 100).toFixed(2).replace(".", ",")}
                 </p>
                 <p className="mt-1 text-xs text-[#68756F]">
-                  Na 15% ShowerShare-servicekosten
+                  Na 25% ShowerShare-servicekosten
                 </p>
               </div>
             </div>
@@ -279,7 +279,7 @@ const [connectError, setConnectError] = useState("");
               </p>
 
               {listings.length === 0 ? (
-                <div className="mt-6 rounded-3xl border border-[#DDE6E2] bg-white p-7">
+                <div className="mt-6 rounded-[28px] border border-[#E1EAE5] bg-white p-8 shadow-sm">
                   <p className="font-semibold">
                     Nog geen douche toegevoegd.
                   </p>
@@ -292,7 +292,7 @@ const [connectError, setConnectError] = useState("");
                   {listings.map((listing) => (
                     <div
                       key={listing.id}
-                      className="rounded-3xl border border-[#DDE6E2] bg-white p-6"
+                      className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -349,7 +349,7 @@ const [connectError, setConnectError] = useState("");
               )}
             </section>
 
-            <section className="mt-12 rounded-3xl border border-[#D0E6D2] bg-white p-7">
+            <section className="mt-12 rounded-[28px] border border-[#CBE9DE] bg-white p-8 shadow-sm">
               <h2 className="text-2xl font-bold">Uitbetalingen</h2>
               <p className="mt-2 text-sm text-[#68756F]">
                 Ontvang 75% van iedere boeking. ShowerShare ontvangt 25% commissie.
@@ -376,7 +376,7 @@ const [connectError, setConnectError] = useState("");
               </p>
 
               {bookings.length === 0 ? (
-                <div className="mt-6 rounded-3xl border border-[#DDE6E2] bg-white p-7">
+                <div className="mt-6 rounded-[28px] border border-[#E1EAE5] bg-white p-8 shadow-sm">
                   <p className="font-semibold">
                     Nog geen reserveringen.
                   </p>
@@ -386,7 +386,7 @@ const [connectError, setConnectError] = useState("");
                   {bookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="rounded-3xl border border-[#DDE6E2] bg-white p-6"
+                      className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-sm"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
