@@ -15,6 +15,22 @@ export default function HostPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (photos.length === 0) {
+      setMessage("Voeg minimaal één foto van je douche toe.");
+      return;
+    }
+
+    if (photos.some((photo) => !["image/jpeg", "image/png", "image/webp"].includes(photo.type))) {
+      setMessage("Gebruik alleen JPG-, PNG- of WebP-afbeeldingen.");
+      return;
+    }
+
+    if (photos.some((photo) => photo.size > 5 * 1024 * 1024)) {
+      setMessage("Een foto mag maximaal 5 MB groot zijn.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
