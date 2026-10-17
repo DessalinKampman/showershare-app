@@ -446,7 +446,7 @@ const [connectError, setConnectError] = useState("");
                             ? "In afwachting"
                             : booking.status === "rejected"
                             ? "Geweigerd"
-                            : booking.status}
+                            : booking.status === "cancelled" ? "Geannuleerd" : booking.status}
                         </span>
                       </div>
 
