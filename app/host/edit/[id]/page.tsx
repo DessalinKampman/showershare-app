@@ -246,14 +246,6 @@ export default function EditShowerPage() {
         throw new Error("Fotovermelding niet gevonden.");
       }
 
-      const { error: storageError } = await supabase.storage
-        .from("shower-photos")
-        .remove([filePath]);
-
-      if (storageError) {
-        throw new Error("Bestand verwijderen mislukt: " + storageError.message);
-      }
-
       const { data: deletedRow, error: dbError } = await supabase
         .from("shower_photos")
         .delete()
@@ -264,8 +256,19 @@ export default function EditShowerPage() {
 
       if (dbError || !deletedRow) {
         throw new Error(
-          "Bestand verwijderd, maar database bijwerken mislukt: " +
+          "Foto verwijderen uit database mislukt: " +
           (dbError?.message || "Geen verwijderde rij ontvangen")
+        );
+      }
+
+      const { error: storageError } = await supabase.storage
+        .from("shower-photos")
+        .remove([filePath]);
+
+      if (storageError) {
+        throw new Error(
+          "Fotoverwijzing verwijderd, maar bestand opruimen mislukt: " +
+          storageError.message
         );
       }
 
