@@ -224,98 +224,228 @@ export default function BookPage() {
     );
   }
 
+  const selectedSlot = slots.find((slot) => slot.id === selectedSlotId);
+
+  const price = Number(listing.price_per_use).toLocaleString("nl-NL", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   return (
-    <main className="min-h-screen bg-[#FAFAF7] px-6 py-16 text-[#17211C]">
-      <div className="mx-auto max-w-2xl">
-        <Link
-          href={`/shower/${listing.id}`}
-          className="text-sm text-neutral-500 hover:text-black"
-        >
-          ← Terug naar douche
-        </Link>
+    <main className="min-h-screen bg-[#F8FAF9] text-[#16211D]">
+      <div className="border-b border-[#E4EAE7] bg-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
+          <Link href="/" className="text-xl font-bold tracking-tight">
+            Shower<span className="text-[#168B80]">Share</span>
+          </Link>
 
-        <div className="mt-8 rounded-3xl border border-[#DDE5E0] bg-white p-8 shadow-sm">
-          <p className="text-sm font-bold tracking-[0.22em] text-[#158A6A]">
-            SHOWERSHARE
-          </p>
+          <Link
+            href={`/shower/${listing.id}`}
+            className="rounded-full border border-[#E4EAE7] px-4 py-2 text-sm font-semibold hover:bg-[#F3F8F5]"
+          >
+            ← Terug naar douche
+          </Link>
+        </div>
+      </div>
 
-          <h1 className="mt-2 text-3xl font-bold">Boek je douche</h1>
+      <div className="mx-auto max-w-6xl px-6 py-10 md:py-14">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#168B80]">
+          Jouw reservering
+        </p>
 
-          <div className="mt-8 border-b border-[#E5E9E6] pb-6">
-            <h2 className="text-xl font-semibold">{listing.title}</h2>
+        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+          Tijd voor een frisse start.
+        </h1>
 
-            <p className="mt-2 text-neutral-500">
-              {listing.city}
-              {listing.address ? ` · ${listing.address}` : ""}
-            </p>
+        <p className="mt-4 max-w-2xl text-[#68756F]">
+          Kies het moment dat jou uitkomt en bekijk je reservering
+          voordat je doorgaat naar de betaling.
+        </p>
 
-            <p className="mt-3 font-bold">
-              €{Number(listing.price_per_use).toFixed(2).replace(".", ",")} per douche
-            </p>
-          </div>
-
-          <form onSubmit={handleBooking} className="mt-7">
-            <label
-              htmlFor="availability"
-              className="mb-3 block font-semibold"
-            >
-              Kies een beschikbaar moment
-            </label>
-
-            {slots.length > 0 ? (
-              <select
-                id="availability"
-                value={selectedSlotId}
-                onChange={(e) => {
-                  setSelectedSlotId(e.target.value);
-                  setMessage("");
-                }}
-                className="w-full rounded-xl border border-[#DDE5E0] bg-white px-4 py-4 outline-none focus:border-[#158A6A]"
-                required
-              >
-                <option value="">Selecteer datum en tijd</option>
-
-                {slots.map((slot) => (
-                  <option key={slot.id} value={slot.id}>
-                    {formatDate(slot.slot_date)} · {formatTime(slot.start_time)} –{" "}
-                    {formatTime(slot.end_time)}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="rounded-xl bg-[#F4F7F6] p-4 text-neutral-500">
-                Deze host heeft momenteel geen beschikbare momenten ingesteld.
-              </div>
-            )}
-
-            <div className="mt-6 rounded-xl bg-[#F4F7F6] p-4">
-              <div className="flex justify-between">
-                <span>Douche</span>
-                <span>
-                  €{Number(listing.price_per_use).toFixed(2).replace(".", ",")}
-                </span>
+        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_370px] lg:items-start">
+          <section className="rounded-[28px] border border-[#E1EAE5] bg-white p-6 shadow-sm sm:p-9">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#E5F4EE] text-xl">
+                🚿
               </div>
 
-              <div className="mt-2 flex justify-between font-bold">
-                <span>Totaal</span>
-                <span>
-                  €{Number(listing.price_per_use).toFixed(2).replace(".", ",")}
-                </span>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#168B80]">
+                  Geselecteerde douche
+                </p>
+
+                <h2 className="mt-2 text-xl font-bold">
+                  {listing.title}
+                </h2>
+
+                <p className="mt-2 text-sm text-[#68756F]">
+                  {listing.city}
+                  {listing.address ? ` · ${listing.address}` : ""}
+                </p>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={booking || !selectedSlotId}
-              className="mt-5 w-full rounded-xl bg-[#158A6A] px-5 py-4 font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {booking ? "Betaling starten..." : "Doorgaan naar betalen"}
-            </button>
-          </form>
+            <div className="my-8 border-t border-[#E8EEEB]" />
 
-          {message && (
-            <p className="mt-5 rounded-xl bg-[#F4F7F6] p-4">{message}</p>
-          )}
+            <form onSubmit={handleBooking}>
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#176D68] text-sm font-bold text-white">
+                  1
+                </span>
+                <h2 className="text-xl font-bold">
+                  Kies je douchemoment
+                </h2>
+              </div>
+
+              <p className="mt-3 text-sm leading-7 text-[#68756F]">
+                Hieronder staan de beschikbare momenten die de host
+                heeft ingesteld.
+              </p>
+
+              {slots.length > 0 ? (
+                <>
+                  <label
+                    htmlFor="availability"
+                    className="mb-3 mt-7 block text-sm font-semibold"
+                  >
+                    Beschikbare datum en tijd
+                  </label>
+
+                  <select
+                    id="availability"
+                    value={selectedSlotId}
+                    onChange={(e) => {
+                      setSelectedSlotId(e.target.value);
+                      setMessage("");
+                    }}
+                    required
+                    disabled={booking}
+                    className="w-full rounded-2xl border border-[#DCE8E2] bg-[#F8FAF9] px-4 py-4 text-[#16211D] outline-none focus:border-[#168B80] focus:ring-2 focus:ring-[#168B80]/10 disabled:opacity-50"
+                  >
+                    <option value="">Selecteer jouw moment</option>
+
+                    {slots.map((slot) => (
+                      <option key={slot.id} value={slot.id}>
+                        {formatDate(slot.slot_date)} ·{" "}
+                        {formatTime(slot.start_time)} –{" "}
+                        {formatTime(slot.end_time)}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              ) : (
+                <div className="mt-7 rounded-2xl border border-[#E1EAE5] bg-[#F3F8F5] p-6">
+                  <p className="font-semibold">
+                    Geen beschikbare momenten
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#68756F]">
+                    Deze host heeft momenteel geen beschikbare
+                    momenten ingesteld.
+                  </p>
+                </div>
+              )}
+
+              {selectedSlot && (
+                <div className="mt-5 rounded-2xl border border-[#CBE9DE] bg-[#F1FAF5] p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#168B80]">
+                    Jouw gekozen moment
+                  </p>
+
+                  <p className="mt-2 font-bold">
+                    {formatDate(selectedSlot.slot_date)}
+                  </p>
+
+                  <p className="mt-1 text-sm text-[#53615B]">
+                    {formatTime(selectedSlot.start_time)} –{" "}
+                    {formatTime(selectedSlot.end_time)}
+                  </p>
+                </div>
+              )}
+
+              <div className="my-8 border-t border-[#E8EEEB]" />
+
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#176D68] text-sm font-bold text-white">
+                  2
+                </span>
+                <h2 className="text-xl font-bold">
+                  Rond je reservering af
+                </h2>
+              </div>
+
+              <p className="mt-3 text-sm leading-7 text-[#68756F]">
+                Na het kiezen van een moment ga je verder naar
+                Stripe Checkout om je betaling af te ronden.
+              </p>
+
+              <button
+                type="submit"
+                disabled={booking || !selectedSlotId}
+                className="mt-7 w-full rounded-2xl bg-[#176D68] px-6 py-4 text-center font-bold text-white transition hover:bg-[#115651] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {booking
+                  ? "Betaling starten..."
+                  : "Doorgaan naar betalen →"}
+              </button>
+
+              {message && (
+                <p
+                  role="alert"
+                  className="mt-5 rounded-2xl bg-[#FFF5ED] p-4 text-sm text-[#87502E]"
+                >
+                  {message}
+                </p>
+              )}
+            </form>
+          </section>
+
+          <aside className="rounded-[28px] border border-[#E1EAE5] bg-white p-7 shadow-lg shadow-[#176D68]/5 lg:sticky lg:top-6">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#168B80]">
+              Jouw overzicht
+            </p>
+
+            <h2 className="mt-3 text-2xl font-bold">
+              Bijna tijd om op te frissen.
+            </h2>
+
+            <div className="mt-7 space-y-5 border-t border-[#E8EEEB] pt-6 text-sm">
+              <div>
+                <p className="text-[#68756F]">Douche</p>
+                <p className="mt-1 font-bold">{listing.title}</p>
+              </div>
+
+              <div>
+                <p className="text-[#68756F]">Locatie</p>
+                <p className="mt-1 font-semibold">{listing.city}</p>
+              </div>
+
+              <div>
+                <p className="text-[#68756F]">Datum en tijd</p>
+                <p className="mt-1 font-semibold">
+                  {selectedSlot
+                    ? `${formatDate(selectedSlot.slot_date)} · ${formatTime(selectedSlot.start_time)} – ${formatTime(selectedSlot.end_time)}`
+                    : "Nog niet geselecteerd"}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-7 border-t border-[#E8EEEB] pt-6">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-[#68756F]">Douche</span>
+                <span>€{price}</span>
+              </div>
+
+              <div className="mt-5 flex items-center justify-between border-t border-[#E8EEEB] pt-5">
+                <span className="font-bold">Totaal</span>
+                <span className="text-3xl font-bold">€{price}</span>
+              </div>
+            </div>
+
+            <p className="mt-6 rounded-2xl bg-[#F3F8F5] p-4 text-xs leading-6 text-[#53615B]">
+              Je betaalt pas wanneer je de betaling
+              via Stripe Checkout afrondt.
+            </p>
+          </aside>
         </div>
       </div>
     </main>
