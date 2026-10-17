@@ -1,12 +1,41 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
 import { supabaseServer } from "@/lib/supabaseServer";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(request: Request) {
   try {
     const { bookingId, newStatus } = await request.json();
+
+    const authorization = request.headers.get("authorization");
+    const token = authorization?.startsWith("Bearer ")
+      ? authorization.slice(7)
+      : null;
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Log eerst in om reserveringen te beheren." },
+        { status: 401 }
+      );
+    }
+
+    const supabaseAuth = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: authData, error: authError } =
+      await supabaseAuth.auth.getUser(token);
+
+    if (authError || !authData.user) {
+      return NextResponse.json(
+        { error: "Je sessie is ongeldig. Log opnieuw in." },
+        { status: 401 }
+      );
+    }
+
+    const hostId = authData.user.id;
+
 
     if (!bookingId || !["confirmed", "rejected"].includes(newStatus)) {
       return NextResponse.json(
@@ -17,7 +46,7 @@ export async function POST(request: Request) {
 
     const { data: booking, error: bookingError } = await supabaseServer
       .from("bookings")
-      .select("id, status, stripe_payment_intent_id")
+      .select("id, shower_id, status, stripe_payment_intent_id")
       .eq("id", bookingId)
       .single();
 
@@ -25,6 +54,25 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Boeking niet gevonden." },
         { status: 404 }
+      );
+    }
+
+    const { data: listing, error: listingError } =
+      await supabaseServer
+        .from("listings")
+        .select("id")
+        .eq("id", booking.shower_id)
+        .eq("user_id", hostId)
+        .maybeSingle();
+
+    if (listingError) {
+      throw listingError;
+    }
+
+    if (!listing) {
+      return NextResponse.json(
+        { error: "Je mag deze reservering niet beheren." },
+        { status: 403 }
       );
     }
 
@@ -36,16 +84,10 @@ export async function POST(request: Request) {
     }
 
     if (newStatus === "rejected") {
-      if (!booking.stripe_payment_intent_id) {
-        return NextResponse.json(
-          { error: "Geen Stripe-betaling gevonden voor deze boeking." },
-          { status: 400 }
-        );
-      }
-
-      await stripe.refunds.create({
-        payment_intent: booking.stripe_payment_intent_id,
-      });
+      return NextResponse.json(
+        { error: "Afwijzen met terugbetaling is tijdelijk uitgeschakeld." },
+        { status: 409 }
+      );
     }
 
     const { error: updateError } = await supabaseServer
