@@ -46,6 +46,14 @@ export async function GET(request: Request) {
     console.log("ShowerShare beschikbaarheid diagnose:", {
       aantalTijdsloten: slots?.length ?? 0,
       aantalActieveBoekingen: bookings?.length ?? 0,
+      datumfilter: today,
+      boekingenOp26Oktober: (bookings ?? [])
+        .filter((b) => String(b.booking_date).startsWith("2026-10-26"))
+        .map((b) => ({
+          datum: b.booking_date,
+          tijd: b.booking_time,
+          duur: b.duration_minutes,
+        })),
       boekingOpTestmoment: (bookings ?? []).some(
         (b) =>
           b.booking_date === "2026-10-26" &&
