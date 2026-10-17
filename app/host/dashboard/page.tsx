@@ -464,7 +464,7 @@ const [connectError, setConnectError] = useState("");
 
                         <div className="mt-2 flex justify-between text-sm">
                           <span className="text-[#68756F]">
-                            ShowerShare 15%
+                            ShowerShare 25%
                           </span>
                           <span>
                             - €{(booking.platform_fee_cents / 100)
