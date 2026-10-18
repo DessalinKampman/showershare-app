@@ -31,6 +31,7 @@ export default function HostDashboardPage() {
   const [status, setStatus] = useState("Laden...");
 const [connectLoading, setConnectLoading] = useState(false);
 const [connectError, setConnectError] = useState("");
+  const [connectSuccess, setConnectSuccess] = useState(false);
 
   async function startStripeOnboarding() {
     if (connectLoading) return;
@@ -73,7 +74,7 @@ const [connectError, setConnectError] = useState("");
       }
 
       if (onboardingData.onboardingComplete) {
-        setConnectError("Je Stripe-account is al ingesteld.");
+        setConnectSuccess(true);
         return;
       }
 
@@ -354,6 +355,7 @@ const [connectError, setConnectError] = useState("");
               <p className="mt-2 text-sm text-[#68756F]">
                 Ontvang 75% van iedere boeking. ShowerShare ontvangt 25% commissie.
               </p>
+              {!connectSuccess && (
               <button
                 type="button"
                 onClick={startStripeOnboarding}
@@ -362,6 +364,12 @@ const [connectError, setConnectError] = useState("");
               >
                 {connectLoading ? "Even geduld..." : "Uitbetalingen instellen"}
               </button>
+              )}
+              {connectSuccess && (
+                <p className="mt-3 text-sm font-medium text-green-700" role="status">
+                  ✓ Stripe Connect is gekoppeld. Je account is klaar voor uitbetalingen.
+                </p>
+              )}
               {connectError && (
                 <p className="mt-3 text-sm text-red-700" role="alert">
                   {connectError}
