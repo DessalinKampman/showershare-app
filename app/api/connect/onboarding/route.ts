@@ -78,7 +78,13 @@ export async function POST(request: Request) {
       payoutAccount.stripe_account_id
     );
 
-    if (account.details_submitted && account.payouts_enabled) {
+    if (
+    account.details_submitted &&
+    account.charges_enabled &&
+    account.payouts_enabled &&
+    (account.requirements?.currently_due?.length ?? 0) === 0 &&
+    (account.requirements?.past_due?.length ?? 0) === 0
+  ) {
       return NextResponse.json({
         onboardingComplete: true
       });
